@@ -1,0 +1,583 @@
+<!-- guards: core/color, core/layout, core/typography -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Network — Hudson Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3f0;
+  --text: #1a1714;
+  --text-mid: #4a443c;
+  --text-quiet: #6b6358;
+  --accent: #b8652a;
+  --border: rgba(42, 36, 32, 0.12);
+  --shadow-soft: hsla(25, 40%, 30%, 0.08);
+  --surface: #ffffff;
+  --surface-raised: #faf8f6;
+  --surface-inset: #edeae6;
+  --color-portable: #4a6fa5;
+  --color-media: #7a5c8a;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'Source Code Pro', monospace;
+  --radius: 8px;
+  --touch-min: 44px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* — Grain overlay — */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.page-header {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 1rem;
+}
+
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.page-header .subtitle {
+  color: var(--text-mid);
+  font-size: 1.05rem;
+  margin-top: 0.5rem;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+
+/* — Topology Diagram — */
+.topology {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 1px 3px var(--shadow-soft);
+}
+
+.topology svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* — Device Cards — */
+.devices {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+@media (min-width: 640px) {
+  .devices { grid-template-columns: 1fr 1fr; }
+}
+
+.device {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px var(--shadow-soft);
+  position: relative;
+}
+
+.device::before {
+  content: attr(data-icon);
+  font-size: 1.6rem;
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+}
+
+.device h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.device .spec {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-quiet);
+  margin-bottom: 0.75rem;
+}
+
+.device .role {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.device ul {
+  list-style: none;
+  padding: 0;
+}
+
+.device li {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  padding: 0.2rem 0;
+  padding-left: 1.1rem;
+  position: relative;
+}
+
+.device li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--text-quiet);
+}
+
+/* — Flow Tables — */
+.section { margin: 2.5rem 0; }
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.section p {
+  color: var(--text-mid);
+  margin-bottom: 1rem;
+  max-width: 65ch;
+}
+
+.flow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.flow-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-quiet);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.flow-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.flow-table td:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.flow-table code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--surface-inset);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* — Setup Checklist — */
+.checklist {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px var(--shadow-soft);
+}
+
+.checklist h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.checklist ol {
+  padding-left: 1.5rem;
+}
+
+.checklist li {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  padding: 0.3rem 0;
+  line-height: 1.5;
+}
+
+.checklist li code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--surface-inset);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.checklist + .checklist { margin-top: 1.25rem; }
+
+/* — Tags — */
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--surface-inset);
+  color: var(--text-quiet);
+}
+
+.tag--hub { background: hsla(25, 60%, 50%, 0.12); color: var(--accent); }
+.tag--portable { background: hsla(210, 40%, 50%, 0.1); color: var(--color-portable); }
+.tag--media { background: hsla(280, 30%, 50%, 0.1); color: var(--color-media); }
+
+/* — Principles — */
+.principles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 640px) {
+  .principles { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.principle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px var(--shadow-soft);
+}
+
+.principle h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.principle p {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  line-height: 1.5;
+}
+
+.footer-note {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-quiet);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Home Network</h1>
+  <p class="subtitle">Four devices, zero subscriptions. macOS does the work.</p>
+</header>
+
+<main>
+
+  <!-- Topology Diagram -->
+  <div class="topology">
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg">
+      <rect width="800" height="340" fill="none"/>
+
+      <!-- Hub: Mac Mini -->
+      <rect x="275" y="20" width="250" height="90" rx="8" fill="var(--surface-raised)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="400" y="52" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="16" font-weight="700" fill="var(--text)">Mac Mini M4</text>
+      <text x="400" y="72" text-anchor="middle" font-family="Source Code Pro, monospace" font-size="11" fill="var(--text-quiet)">16GB / 512GB / always on</text>
+      <text x="400" y="92" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="11" font-weight="600" fill="var(--accent)">THE HUB</text>
+
+      <!-- Connection lines -->
+      <line x1="330" y1="110" x2="150" y2="180" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+      <line x1="470" y1="110" x2="650" y2="180" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+      <line x1="400" y1="110" x2="400" y2="200" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+
+      <!-- Garen's Air -->
+      <rect x="40" y="180" width="220" height="80" rx="8" fill="var(--surface-raised)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="150" y="210" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="14" font-weight="700" fill="var(--text)">Garen's Air</text>
+      <text x="150" y="228" text-anchor="middle" font-family="Source Code Pro, monospace" font-size="10" fill="var(--text-quiet)">M1 / 16GB</text>
+      <text x="150" y="248" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="var(--color-portable)">portable terminal</text>
+
+      <!-- Apple TV -->
+      <rect x="310" y="200" width="180" height="70" rx="8" fill="var(--surface-raised)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="400" y="228" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="14" font-weight="700" fill="var(--text)">Apple TV</text>
+      <text x="400" y="248" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="var(--color-media)">media playback</text>
+
+      <!-- Taylor's Air -->
+      <rect x="540" y="180" width="220" height="80" rx="8" fill="var(--surface-raised)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="650" y="210" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="14" font-weight="700" fill="var(--text)">Taylor's Air</text>
+      <text x="650" y="228" text-anchor="middle" font-family="Source Code Pro, monospace" font-size="10" fill="var(--text-quiet)">M1 / 16GB</text>
+      <text x="650" y="248" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="var(--color-portable)">her machine</text>
+
+      <!-- Flow labels -->
+      <text x="210" y="300" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="11" fill="var(--text-quiet)">SSH / Screen Share / Time Machine</text>
+      <text x="590" y="300" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="11" fill="var(--text-quiet)">Time Machine / File Sharing</text>
+      <text x="400" y="300" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="11" fill="var(--text-quiet)">Home Sharing</text>
+
+      <!-- Wi-Fi note -->
+      <text x="400" y="332" text-anchor="middle" font-family="Source Sans 3, sans-serif" font-size="10" fill="var(--text-quiet)" font-style="italic">all connections over home Wi-Fi (Mini on ethernet recommended)</text>
+    </svg>
+  </div>
+
+  <!-- Device Cards -->
+  <div class="devices">
+    <div class="device" data-icon="">
+      <h2>Mac Mini M4</h2>
+      <p class="spec">16GB / 512GB / Ethernet</p>
+      <p class="role"><span class="tag tag--hub">Hub</span> Always-on server</p>
+      <ul>
+        <li>LaunchAgents: email sync, daily snapshot</li>
+        <li>Claude Code home base + background agents</li>
+        <li>FFmpeg encoding, Demucs stems</li>
+        <li>Time Machine destination for both Airs</li>
+        <li>Shared folders (photos, media, docs)</li>
+        <li>Home Sharing library for Apple TV</li>
+        <li>Future: local LLM inference (8B-13B)</li>
+      </ul>
+    </div>
+
+    <div class="device" data-icon="">
+      <h2>Garen's MacBook Air</h2>
+      <p class="spec">M1 / 16GB / 256GB</p>
+      <p class="role"><span class="tag tag--portable">Portable</span> Thin client</p>
+      <ul>
+        <li>SSH + Screen Share into Mini</li>
+        <li>Claude Code for on-the-go sessions</li>
+        <li>Light repos cloned locally</li>
+        <li>Heavy processing offloaded to Mini</li>
+        <li>Time Machine backup to Mini over Wi-Fi</li>
+      </ul>
+    </div>
+
+    <div class="device" data-icon="">
+      <h2>Taylor's MacBook Air</h2>
+      <p class="spec">M1 / 16GB / 256GB</p>
+      <p class="role"><span class="tag tag--portable">Portable</span> Her machine</p>
+      <ul>
+        <li>Her own Apple ID and account</li>
+        <li>Art portfolio work, browsing, email</li>
+        <li>Access to shared family folders on Mini</li>
+        <li>Time Machine backup to Mini over Wi-Fi</li>
+        <li>AirDrop to/from all devices</li>
+      </ul>
+    </div>
+
+    <div class="device" data-icon="">
+      <h2>Apple TV</h2>
+      <p class="spec">Living room display</p>
+      <p class="role"><span class="tag tag--media">Media</span> Playback</p>
+      <ul>
+        <li>Home Sharing from Mini's library</li>
+        <li>AirPlay target from any machine</li>
+        <li>Streaming apps (existing setup)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- How Things Flow -->
+  <div class="section">
+    <h2 class="section-title">How things connect</h2>
+    <p>Everything talks to the Mini. The Mini never sleeps.</p>
+
+    <table class="flow-table">
+      <thead>
+        <tr><th>Need</th><th>How</th><th>Protocol</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Backup</td>
+          <td>Both Airs back up to Mini automatically</td>
+          <td><code>Time Machine over SMB</code></td>
+        </tr>
+        <tr>
+          <td>Remote control</td>
+          <td>Screen Share or SSH from either Air</td>
+          <td><code>vnc://mini.local</code></td>
+        </tr>
+        <tr>
+          <td>Shared files</td>
+          <td>Family folder on Mini, visible to all</td>
+          <td><code>SMB via /Users/Shared/</code></td>
+        </tr>
+        <tr>
+          <td>Media</td>
+          <td>Mini serves library to Apple TV</td>
+          <td><code>Home Sharing</code></td>
+        </tr>
+        <tr>
+          <td>Code sync</td>
+          <td>Git push/pull between Air and Mini</td>
+          <td><code>git over SSH</code></td>
+        </tr>
+        <tr>
+          <td>Heavy compute</td>
+          <td>SSH into Mini, run there</td>
+          <td><code>ssh garen@mini.local</code></td>
+        </tr>
+        <tr>
+          <td>Print / AirDrop</td>
+          <td>All devices see each other</td>
+          <td><code>Bonjour / AirDrop</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Claude Code Ecosystem -->
+  <div class="section">
+    <h2 class="section-title">Claude Code across machines</h2>
+    <p>The ecosystem is git-native. Repos sync between machines via GitHub, not file sharing.</p>
+
+    <table class="flow-table">
+      <thead>
+        <tr><th>Component</th><th>Mini</th><th>Air</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Claude Code</td>
+          <td>Primary — long sessions, agents, cron</td>
+          <td>Secondary — portable sessions</td>
+        </tr>
+        <tr>
+          <td>LaunchAgents</td>
+          <td>email-sync, daily-snapshot, alerts</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>Repos</td>
+          <td>All 10+ repos cloned</td>
+          <td>Light subset, pull as needed</td>
+        </tr>
+        <tr>
+          <td>Credentials</td>
+          <td>Full set in Keychain + .zshrc</td>
+          <td>Full set (independent Keychain)</td>
+        </tr>
+        <tr>
+          <td>Background work</td>
+          <td>Cron jobs, encoding, stems</td>
+          <td>Offload via SSH</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Setup Sequence -->
+  <div class="section">
+    <h2 class="section-title">Setup sequence</h2>
+
+    <div class="checklist">
+      <h2>1. Mac Mini (do first)</h2>
+      <ol>
+        <li>Clean macOS setup — account <code>garen</code>, personal Apple ID</li>
+        <li>Create Taylor's standard account</li>
+        <li>Enable: Screen Sharing, File Sharing, Remote Login (SSH)</li>
+        <li>Enable: Time Machine sharing (designate a shared volume or folder)</li>
+        <li>Run <code>bootstrap-mac.sh</code> from USB or clone <code>salttymalty/tools</code></li>
+        <li>Complete Google OAuth flows (OEC + personal)</li>
+        <li>Install Homebrew, ffmpeg, yt-dlp</li>
+        <li>Install Claude Code</li>
+        <li>Set Energy Saver: prevent sleep when display is off</li>
+      </ol>
+    </div>
+
+    <div class="checklist">
+      <h2>2. Garen's Air</h2>
+      <ol>
+        <li>Run <code>bootstrap-mac.sh</code> (skip LaunchAgents — server role is Mini only)</li>
+        <li>Set up SSH key for Mini: <code>ssh-copy-id garen@mini.local</code></li>
+        <li>Point Time Machine at Mini's shared volume</li>
+        <li>Install Claude Code</li>
+      </ol>
+    </div>
+
+    <div class="checklist">
+      <h2>3. Taylor's Air</h2>
+      <ol>
+        <li>Standard macOS setup with Taylor's Apple ID</li>
+        <li>Point Time Machine at Mini's shared volume</li>
+        <li>Connect to Mini shared folder in Finder if desired</li>
+        <li>That's it — her machine, her rules</li>
+      </ol>
+    </div>
+
+    <div class="checklist">
+      <h2>4. Apple TV</h2>
+      <ol>
+        <li>Enable Home Sharing (same Apple ID as Mini, or Family Sharing)</li>
+        <li>Mini's shared library appears automatically</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Principles -->
+  <div class="section">
+    <h2 class="section-title">Design principles</h2>
+    <div class="principles">
+      <div class="principle">
+        <h3>No subscriptions</h3>
+        <p>Everything runs on built-in macOS services. No Dropbox, no NAS OS, no cloud sync fees.</p>
+      </div>
+      <div class="principle">
+        <h3>Git is the sync layer</h3>
+        <p>Code moves between machines via GitHub. File sharing is for family stuff, not repos.</p>
+      </div>
+      <div class="principle">
+        <h3>Mini never sleeps</h3>
+        <p>It's a server. Backups, cron jobs, and encoding happen whether anyone's at the keyboard or not.</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="footer-note">March 2026 — Hudson home network setup guide</p>
+
+</main>
+
+</body>
+</html>
