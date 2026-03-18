@@ -1,0 +1,561 @@
+<!-- guards: core/color, core/layout, core/typography -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taylor's Mac Mini Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3f0;
+  --text: #1a1714;
+  --text-mid: #4a443c;
+  --text-quiet: #6b6358;
+  --accent: #b8652a;
+  --accent-soft: rgba(184, 101, 42, 0.1);
+  --border: rgba(42, 36, 32, 0.12);
+  --shadow-soft: hsla(25, 40%, 30%, 0.08);
+  --surface: #ffffff;
+  --surface-raised: #faf8f6;
+  --surface-inset: #edeae6;
+  --color-ready: #4a7c5c;
+  --color-ready-bg: rgba(74, 124, 92, 0.08);
+  --color-pending: #a07030;
+  --color-pending-bg: rgba(160, 112, 48, 0.08);
+  --color-terminal-bg: var(--text);
+  --color-terminal-text: var(--bg);
+  --color-terminal-prompt: var(--color-ready);
+  --color-terminal-comment: var(--text-quiet);
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'Source Code Pro', monospace;
+  --radius: 8px;
+  --touch-min: 44px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.page-header {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 1rem;
+}
+
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.page-header .subtitle {
+  color: var(--text-mid);
+  font-size: 1.05rem;
+  margin-top: 0.5rem;
+}
+
+.page-header .timestamp {
+  color: var(--text-quiet);
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+
+section {
+  margin-top: 2.5rem;
+}
+
+section h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px var(--shadow-soft);
+}
+
+.card h3 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p, .card li {
+  color: var(--text-mid);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.card ul li {
+  padding: 0.35rem 0;
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.card ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+
+.badge-ready {
+  color: var(--color-ready);
+  background: var(--color-ready-bg);
+}
+
+.badge-pending {
+  color: var(--color-pending);
+  background: var(--color-pending-bg);
+}
+
+.diagram {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--text-mid);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  background: var(--surface-inset);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  color: var(--text);
+}
+
+.command-block {
+  background: var(--color-terminal-bg);
+  color: var(--color-terminal-text);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+.command-block .prompt { color: var(--color-terminal-prompt); }
+.command-block .comment { color: var(--color-terminal-comment); }
+
+.folder-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+}
+
+.folder-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-quiet);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.folder-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  color: var(--text-mid);
+}
+
+.folder-table td:first-child {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 640px) {
+  .option-grid { grid-template-columns: 1fr; }
+}
+
+.option-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px var(--shadow-soft);
+}
+
+.option-card.recommended {
+  border-color: var(--accent);
+  border-width: 2px;
+}
+
+.option-card h3 {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.option-card .option-desc {
+  color: var(--text-quiet);
+  font-size: 0.88rem;
+  margin-bottom: 0.75rem;
+}
+
+.option-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.option-card li {
+  font-size: 0.88rem;
+  color: var(--text-mid);
+  padding: 0.2rem 0;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.option-card li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.rec-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.step-list {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+}
+
+.step-list li {
+  counter-increment: step;
+  padding: 0.75rem 0 0.75rem 2.5rem;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-mid);
+  font-size: 0.95rem;
+}
+
+.step-list li:last-child { border-bottom: none; }
+
+.step-list li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0;
+}
+
+.checklist li {
+  padding: 0.4rem 0 0.4rem 1.75rem;
+  position: relative;
+  font-size: 0.95rem;
+  color: var(--text-mid);
+}
+
+.checklist li::before {
+  position: absolute;
+  left: 0;
+  font-size: 1rem;
+}
+
+.checklist li.done::before {
+  content: '\2713';
+  color: var(--color-ready);
+}
+
+.checklist li.todo::before {
+  content: '\25CB';
+  color: var(--color-pending);
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Taylor's Mac Mini Setup</h1>
+  <p class="subtitle">Everything Taylor needs to work on her projects from her MacBook Air, with files living on the Mini.</p>
+  <p class="timestamp">Updated March 17, 2026</p>
+</header>
+
+<main>
+
+  <!-- ACCOUNT -->
+  <section>
+    <h2>Account</h2>
+    <div class="card">
+      <h3>macOS User <span class="badge badge-ready">Ready</span></h3>
+      <table class="folder-table">
+        <tr><td>Username</td><td><code>taylorhopkins</code></td></tr>
+        <tr><td>UID</td><td>502 (standard user)</td></tr>
+        <tr><td>Home</td><td><code>/Users/taylorhopkins/</code></td></tr>
+        <tr><td>Created</td><td>March 17, 2026</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- SHARED FOLDERS -->
+  <section>
+    <h2>Shared Folders</h2>
+    <div class="card">
+      <p>These are symlinks in Taylor's home directory pointing to originals in <code>/Users/garen/</code>. Both accounts have read/write access via the <code>staff</code> group.</p>
+      <table class="folder-table">
+        <thead>
+          <tr><th>Folder</th><th>What it is</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>taylor-hopkins-art/</td>
+            <td>Art portfolio — site, pieces.json, images, build tools</td>
+            <td><span class="badge badge-ready">Linked</span></td>
+          </tr>
+          <tr>
+            <td>taylor-studio/</td>
+            <td>Claude Code workspace with Taylor-focused CLAUDE.md</td>
+            <td><span class="badge badge-ready">Linked</span></td>
+          </tr>
+          <tr>
+            <td>found-slowly/</td>
+            <td>Found Slowly — children's clothing brand site + data</td>
+            <td><span class="badge badge-ready">Linked</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="diagram">  Taylor's Air                         Mac Mini
+  ─────────────                      ──────────
+                    Tailscale
+  ~/               ─────────────>    /Users/taylorhopkins/
+                    SSH                ├── taylor-hopkins-art/  →  /Users/garen/taylor-hopkins-art/
+                                       ├── taylor-studio/       →  /Users/garen/taylor-studio/
+                                       └── found-slowly/        →  /Users/garen/found-slowly/</div>
+  </section>
+
+  <!-- HOW TO CONNECT -->
+  <section>
+    <h2>How to Connect</h2>
+
+    <div class="option-grid">
+      <div class="option-card recommended">
+        <span class="rec-label">Recommended</span>
+        <h3>Remote Control</h3>
+        <p class="option-desc">Use Claude Code from your browser — session runs on Mini</p>
+        <ul>
+          <li>Already set up in tmux session <code>rc-taylor</code></li>
+          <li>Open <strong>claude.ai/code</strong> and connect</li>
+          <li>Works from any device — Air, phone, iPad</li>
+          <li>Requires Garen's Anthropic account login</li>
+        </ul>
+      </div>
+
+      <div class="option-card">
+        <h3>Claude Desktop SSH</h3>
+        <p class="option-desc">Claude Desktop on your Air connects to Mini over SSH</p>
+        <ul>
+          <li>Install Claude Desktop on Air</li>
+          <li>Add SSH connection to <code>mini</code></li>
+          <li>Select project folder on Mini</li>
+          <li>Requires own Anthropic subscription</li>
+          <li>Needs brew in Taylor's PATH (see setup)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- REMOTE CONTROL STEPS -->
+  <section>
+    <h2>Using Remote Control (Today)</h2>
+    <div class="card">
+      <h3>Quick Start</h3>
+      <ol class="step-list">
+        <li>Go to <strong>claude.ai/code</strong> in your browser (log in with Garen's Anthropic account)</li>
+        <li>The Mini already has a session running in tmux called <code>rc-taylor</code></li>
+        <li>If the session is active, you'll see "Taylor Studio" — click to connect</li>
+        <li>You're now working on Mini files from your browser. Your project folders are in the sidebar.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>If the session needs restarting</h3>
+      <p>Ask Garen to SSH into the Mini and run:</p>
+      <div class="command-block"><span class="comment"># Attach to existing tmux session</span>
+<span class="prompt">$</span> ssh -t mini "tmux attach -t rc-taylor"
+
+<span class="comment"># Or start a fresh one</span>
+<span class="prompt">$</span> ssh -t mini "tmux new -s rc-taylor"
+<span class="prompt">mini$</span> cd ~/taylor-studio
+<span class="prompt">mini$</span> claude remote-control --name 'Taylor Studio'</div>
+    </div>
+  </section>
+
+  <!-- SSH SETUP (FUTURE) -->
+  <section>
+    <h2>Claude Desktop SSH Setup (Future)</h2>
+    <div class="card">
+      <h3>When Taylor has her own Anthropic account</h3>
+      <ol class="step-list">
+        <li>Install Claude Desktop on Taylor's Air</li>
+        <li>Open Claude Desktop → click the environment dropdown → <strong>+ Add SSH connection</strong></li>
+        <li>
+          Fill in:<br>
+          <code>Name: Mac Mini</code><br>
+          <code>SSH Host: 100.124.172.108</code> (Tailscale IP)<br>
+          <code>SSH Port: 22</code>
+        </li>
+        <li>Select project folder: <code>/Users/taylorhopkins/taylor-hopkins-art</code></li>
+        <li>Start a session — Claude runs on the Mini with full file access</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>One-time shell setup needed first</h3>
+      <p>Run on the Mini (as admin) so Taylor's account can find <code>claude</code>:</p>
+      <div class="command-block"><span class="prompt">$</span> sudo sh -c 'echo "eval \"\$(/opt/homebrew/bin/brew shellenv)\"" >> /Users/taylorhopkins/.zprofile'
+<span class="prompt">$</span> sudo chown taylorhopkins:staff /Users/taylorhopkins/.zprofile</div>
+    </div>
+  </section>
+
+  <!-- NETWORK -->
+  <section>
+    <h2>Network Reference</h2>
+    <div class="card">
+      <table class="folder-table">
+        <thead>
+          <tr><th>Device</th><th>Tailscale IP</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mac Mini</td><td><code>100.124.172.108</code></td><td>Always-on server</td></tr>
+          <tr><td>Taylor's Air</td><td><code>100.103.112.68</code></td><td>Workstation</td></tr>
+          <tr><td>Garen's Air</td><td>—</td><td>Admin machine</td></tr>
+          <tr><td>Art Admin Panel</td><td><code>100.124.172.108:8081</code></td><td>Inventory management</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CHECKLIST -->
+  <section>
+    <h2>Setup Checklist</h2>
+    <div class="card">
+      <ul class="checklist">
+        <li class="done">macOS account created (<code>taylorhopkins</code>, UID 502)</li>
+        <li class="done">Home directory with standard folders</li>
+        <li class="done">Symlink: taylor-hopkins-art</li>
+        <li class="done">Symlink: taylor-studio</li>
+        <li class="done">Symlink: found-slowly</li>
+        <li class="done">Group write permissions on shared directories</li>
+        <li class="done">Tailscale on Taylor's Air</li>
+        <li class="todo">Brew shellenv in Taylor's <code>.zprofile</code></li>
+        <li class="todo">SSH key from Taylor's Air to Mini</li>
+        <li class="todo">Taylor's own Anthropic subscription (for Claude Desktop SSH)</li>
+        <li class="todo">Test file read/write from Taylor's account</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>
